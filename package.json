@@ -27,6 +27,8 @@
     "@types/multer": "^2.2.0",
     "leaflet": "^1.9.4",
     "multer": "^2.3.0",
+    "postgres": "^3.4.9",
+    "serverless-http": "^4.0.0",
     "svix": "^1.21.0"
   },
   "devDependencies": {

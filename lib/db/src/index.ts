@@ -1,10 +1,13 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
 import pg from "pg";
+import postgres from "postgres";
 import * as schema from "./schema/index";
 
 const { Pool } = pg;
 
 let pool: any = null;
+let client: any = null;
 let db: any = null;
 
 export function getPoolConfig(connectionString?: string): any {
@@ -37,17 +40,23 @@ export function getPoolConfig(connectionString?: string): any {
 
 if (process.env.DATABASE_URL) {
   try {
-    const config = getPoolConfig(process.env.DATABASE_URL);
-    pool = new Pool(config);
-    db = drizzle(pool, { schema });
+    const isCloudflareWorker = typeof process === "undefined" || !process.versions?.node;
+    if (isCloudflareWorker) {
+      client = postgres(process.env.DATABASE_URL, { ssl: 'require', max: 1 });
+      db = drizzlePostgres(client, { schema });
+    } else {
+      const config = getPoolConfig(process.env.DATABASE_URL);
+      pool = new Pool(config);
+      db = drizzleNode(pool, { schema });
+    }
   } catch (err) {
     console.error('[Database] Connection initialization error:', err);
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" && !process.env.CF_PAGES && !process.env.CF_WORKERS) {
       throw new Error('Database initialization failed');
     }
   }
 } else if (process.env.NODE_ENV === "production") {
-  throw new Error('DATABASE_URL environment variable is required in production');
+  console.warn('[Database] DATABASE_URL environment variable is not set.');
 }
 
 if (!db) {
@@ -64,5 +73,5 @@ if (!db) {
   });
 }
 
-export { pool, db };
+export { pool, client, db };
 export * from "./schema/index";

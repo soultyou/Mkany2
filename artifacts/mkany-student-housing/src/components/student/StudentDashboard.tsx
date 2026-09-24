@@ -45,6 +45,7 @@ interface StudentDashboardProps {
 
 export function StudentDashboard({ openToast, onExploreProperties, onViewPropertyModal, onGoToOwnerDashboard, initialTab = "bookings" }: StudentDashboardProps) {
   const { user, isSignedIn, openSignIn, updateUserProfile, switchRole } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"bookings" | "favorites" | "profile" | "support">(initialTab);
 
   React.useEffect(() => {
@@ -87,12 +88,12 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
           </div>
 
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-3">
-            بوابة الطلاب المعتمدين 🎓
+            {t("dashboard.student.verified")} 🎓
           </span>
 
-          <h2 className="text-2xl font-extrabold text-foreground">تسجيل الدخول لمتابعة حجوزاتك</h2>
+          <h2 className="text-2xl font-extrabold text-foreground">{t("nav.login")}</h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-muted-foreground">
-            يرجى تسجيل الدخول أو إنشاء حساب طالب لمشاهدة إيصالات الدفع المرفوعة، ومتابعة حالة السكن، وإدارة بياناتك الجامعية الموثقة.
+            {t("dashboard.student.bookings.noBookingsDesc")}
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -100,14 +101,14 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
               <button
                 className="rounded-xl bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow transition-transform hover:-translate-y-0.5"
               >
-                تسجيل الدخول كطالب 🎓
+                {t("nav.login")} 🎓
               </button>
             </SignInButton>
             <button
               onClick={onExploreProperties}
               className="rounded-xl border border-border bg-background px-6 py-3.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
             >
-              تصفح الوحدات المتاحة
+              {t("dashboard.student.bookings.browse")}
             </button>
           </div>
         </div>
@@ -267,22 +268,22 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-extrabold sm:text-3xl text-foreground">
-                  مرحباً، {user?.fullName || "طالب مكاني"}
+                  {t("dashboard.student.welcome")} {user?.fullName || "Mkany Student"}
                 </h1>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck size={14} />
-                  طالب جامعي موثّق
+                  {t("dashboard.student.verified")}
                 </span>
               </div>
               <p className="mt-1 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <GraduationCap size={15} className="text-primary" />
-                  {user?.university || "جامعة كفر الشيخ"}
+                  {user?.university || "University"}
                 </span>
                 <span>•</span>
                 <span className="flex items-center gap-1 font-mono">
                   <CreditCard size={14} className="text-primary" />
-                  الرقم القومي: {user?.nationalId || "30208151234567"}
+                  {t("dashboard.student.nationalId")} {user?.nationalId || "00000000000000"}
                 </span>
               </p>
             </div>
@@ -294,14 +295,14 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
             data-testid="student-btn-browse-housing"
           >
             <Home size={16} />
-            استكشاف سكن جديد
+            {t("dashboard.student.exploreBtn")}
           </button>
         </div>
 
         {/* بريف مكاني التعريفي */}
         <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-xs sm:text-sm leading-6 text-foreground/90">
-          <strong className="text-primary font-bold block mb-1">نبذة عن منصة مكاني:</strong>
-          مكاني هي المنصة الذكية الأولى المتخصصة في تأمين وسكن الطلاب بجامعات مصر، تقدم وحدات موثقة، مطابقة ذكية، وعقود إلكترونية آمنة تضمن حقوق الطرفين.
+          <strong className="text-primary font-bold block mb-1">{t("dashboard.student.aboutMkany")}</strong>
+          {t("hero.description")}
         </div>
       </div>
 
@@ -317,7 +318,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
           data-testid="tab-student-bookings"
         >
           <Calendar size={18} />
-          تفاصيل وحالة حجز السكن ({bookings.length})
+          {t("dashboard.student.bookingsTab")} ({bookings.length})
         </button>
         <button
           onClick={() => setActiveTab("favorites")}
@@ -329,7 +330,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
           data-testid="tab-student-favorites"
         >
           <Heart size={18} />
-          قائمة المفضلة ({favorites.length})
+          {t("dashboard.student.favoritesTab")} ({favorites.length})
         </button>
         <button
           onClick={() => setActiveTab("profile")}
@@ -341,7 +342,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
           data-testid="tab-student-profile"
         >
           <User size={18} />
-          إدارة الملف الشخصي والتوثيق
+          {t("dashboard.student.profileTab")}
         </button>
         <button
           onClick={() => setActiveTab("support")}
@@ -353,7 +354,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
           data-testid="tab-student-support"
         >
           <LifeBuoy size={18} />
-          الدعم والمساعدة
+          {t("dashboard.student.supportTab")}
         </button>
       </div>
 
@@ -362,28 +363,28 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
         <div className="space-y-6" data-testid="section-student-bookings">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-extrabold text-foreground">سجل حجوزاتك السكنية</h2>
+              <h2 className="text-xl font-extrabold text-foreground">{t("dashboard.student.bookings.title")}</h2>
               <p className="text-xs text-muted-foreground">
-                تتبع حالة مراجعة الإيصال وتأكيد السكن والتواصل المباشر مع إدارة مكاني
+                {t("dashboard.student.bookings.subtitle")}
               </p>
             </div>
             <span className="text-xs font-semibold text-muted-foreground">
-              واتساب المراجعة: <span className="font-mono text-primary font-bold">01055332242</span>
+              {t("dashboard.student.bookings.whatsapp")} <span className="font-mono text-primary font-bold">01055332242</span>
             </span>
           </div>
 
           {bookings.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-card p-12 text-center">
               <Home size={38} className="mx-auto mb-3 text-muted-foreground/60" />
-              <h3 className="text-lg font-bold text-foreground">لا توجد حجوزات نشطة حالياً</h3>
+              <h3 className="text-lg font-bold text-foreground">{t("dashboard.student.bookings.noBookings")}</h3>
               <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-                اختر غرفتك أو شقتك الطلابية الآن، وقم برفع إيصال الدفع اليدوي لتأكيد الحجز فوراً عبر الواتساب.
+                {t("dashboard.student.bookings.noBookingsDesc")}
               </p>
               <button
                 onClick={onExploreProperties}
                 className="mt-5 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-primary-foreground shadow"
               >
-                تصفح الوحدات المتاحة
+                {t("dashboard.student.bookings.browse")}
               </button>
             </div>
           ) : (
@@ -420,34 +421,34 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
 
                         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                           <div className="rounded-xl border border-border bg-muted/40 p-2.5">
-                            <span className="text-[10px] text-muted-foreground block">قيمة الإيجار</span>
+                            <span className="text-[10px] text-muted-foreground block">{t("dashboard.student.bookings.rent")}</span>
                             <strong className="text-foreground text-sm font-bold">
-                              {booking.propertyPrice} <small className="text-[10px]">جنيه / شهر</small>
+                              {booking.propertyPrice} <small className="text-[10px]">{t("property.perMonth")}</small>
                             </strong>
                           </div>
                           <div className="rounded-xl border border-border bg-muted/40 p-2.5">
-                            <span className="text-[10px] text-muted-foreground block">طريقة التحويل</span>
+                            <span className="text-[10px] text-muted-foreground block">{t("dashboard.student.bookings.paymentMethod")}</span>
                             <strong className="text-foreground text-xs font-semibold">
                               {booking.paymentMethod === "vodafone_cash" ? "فودافون كاش" : booking.paymentMethod === "instapay" ? "إنستاباي" : "تحويل بنكي"}
                             </strong>
                           </div>
                           <div className="rounded-xl border border-border bg-muted/40 p-2.5">
-                            <span className="text-[10px] text-muted-foreground block">المحول منه</span>
+                            <span className="text-[10px] text-muted-foreground block">{t("dashboard.student.bookings.sender")}</span>
                             <strong className="text-foreground font-mono text-xs">
                               {booking.senderPhone || booking.studentPhone}
                             </strong>
                           </div>
                           <div className="rounded-xl border border-border bg-muted/40 p-2.5">
-                            <span className="text-[10px] text-muted-foreground block">تاريخ الحجز</span>
+                            <span className="text-[10px] text-muted-foreground block">{t("dashboard.student.bookings.date")}</span>
                             <strong className="text-foreground text-xs">
-                              {new Date(booking.createdAt).toLocaleDateString("ar-EG")}
+                              {new Date(booking.createdAt).toLocaleDateString(language === 'ar' ? "ar-EG" : "en-US")}
                             </strong>
                           </div>
                         </div>
 
                         {booking.adminNotes && (
                           <div className="mt-3 rounded-xl bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300">
-                            <strong>ملاحظة الإدارة: </strong> {booking.adminNotes}
+                            <strong>{t("dashboard.student.bookings.adminNotes")} </strong> {booking.adminNotes}
                           </div>
                         )}
                       </div>
@@ -461,7 +462,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                             data-testid={`btn-view-receipt-${booking.id}`}
                           >
                             <ImageIcon size={14} className="text-primary" />
-                            معاينة إيصال الدفع
+                            {t("dashboard.student.bookings.viewReceipt")}
                           </button>
                         )}
 
@@ -472,7 +473,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                             data-testid={`btn-toggle-ledger-${booking.id}`}
                           >
                             <FileText size={14} />
-                            {expandedLedgerBookingId === booking.id ? "إغلاق الدفتر المالي وعقد الإيجار" : "عرض الدفتر المالي وعقد الإيجار"}
+                            {expandedLedgerBookingId === booking.id ? t("dashboard.student.bookings.ledgerClose") : t("dashboard.student.bookings.ledgerOpen")}
                           </button>
                         )}
 
@@ -484,7 +485,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                           data-testid={`btn-whatsapp-booking-${booking.id}`}
                         >
                           <MessageCircle size={14} />
-                          تواصل مع إدارة مكاني على واتساب (01055332242)
+                          {t("dashboard.student.bookings.whatsappContact")}
                         </a>
                       </div>
 
@@ -507,10 +508,10 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
             <div>
               <h2 className="text-xl font-extrabold text-foreground flex items-center gap-2">
                 <Heart size={22} className="text-rose-500 fill-rose-500" />
-                سكنك المحفوظ بالمفضلة ({favorites.length})
+                {t("dashboard.student.favorites.title")} ({favorites.length})
               </h2>
               <p className="text-xs text-muted-foreground">
-                العقارات المعتمدة التي قمت بحفظها للمقارنة والوصول السريع إليها أو الحجز الفوري
+                {t("dashboard.student.favorites.subtitle")}
               </p>
             </div>
             <button
@@ -518,23 +519,23 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
               className="inline-flex items-center gap-2 self-start rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
             >
               <Home size={15} />
-              استكشاف المزيد من الوحدات
+              {t("dashboard.student.favorites.explore")}
             </button>
           </div>
 
           {isLoadingFavorites ? (
             <div className="rounded-3xl border border-border bg-card p-12 text-center">
               <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <p className="text-xs font-bold text-muted-foreground">جاري تحميل المفضلة من السيرفر...</p>
+              <p className="text-xs font-bold text-muted-foreground">{t("dashboard.student.favorites.loading")}</p>
             </div>
           ) : favorites.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-card p-12 text-center" data-testid="empty-favorites-card">
               <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500">
                 <HeartOff size={34} />
               </div>
-              <h3 className="text-lg font-bold text-foreground">قائمة المفضلة فارغة حالياً</h3>
+              <h3 className="text-lg font-bold text-foreground">{t("dashboard.student.favorites.empty")}</h3>
               <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground leading-6">
-                لم تقم بحفظ أي وحدة سكنية بعد. أثناء تصفحك للسكن الجامعي المعتمد، اضغط على علامة القلب ❤️ لحفظ أي وحدة والرجوع إليها في أي وقت.
+                {t("dashboard.student.favorites.emptyDesc")}
               </p>
               <button
                 onClick={onExploreProperties}
@@ -542,7 +543,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                 data-testid="btn-empty-favorites-browse"
               >
                 <Sparkles size={15} />
-                تصفح الوحدات السكنية المعتمدة
+                {t("dashboard.student.bookings.browse")}
               </button>
             </div>
           ) : (
@@ -579,7 +580,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                             {p.verified && (
                               <span className="flex items-center gap-1 rounded-full bg-background/95 px-2 py-0.5 text-[10px] font-bold text-primary shadow-sm">
                                 <ShieldCheck size={11} />
-                                موثق
+                                {t("dashboard.student.favorites.verified")}
                               </span>
                             )}
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
@@ -587,7 +588,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                                 ? "bg-emerald-500/90 text-white" 
                                 : "bg-muted text-muted-foreground"
                             }`}>
-                              {p.status === "متاح" ? "متاح للحجز" : p.status}
+                              {p.status === "متاح" ? t("dashboard.student.favorites.available") : p.status}
                             </span>
                           </div>
 
@@ -596,8 +597,8 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                             onClick={() => handleRemoveFavorite(fav.propertyId)}
                             disabled={isRemoving}
                             className="rounded-full bg-background/90 p-2 text-rose-500 shadow-sm transition-colors hover:bg-rose-500 hover:text-white disabled:opacity-50"
-                            title="إزالة من المفضلة"
-                            aria-label="إزالة من المفضلة"
+                            title={t("dashboard.student.favorites.remove")}
+                            aria-label={t("dashboard.student.favorites.remove")}
                             data-testid={`btn-remove-fav-${fav.propertyId}`}
                           >
                             {isRemoving ? (
@@ -619,7 +620,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                             <strong className="text-base font-black text-primary">
                               {p.pricePerMonth?.toLocaleString()}
                             </strong>
-                            <span className="block text-[10px] text-muted-foreground">ج.م / شهر</span>
+                            <span className="block text-[10px] text-muted-foreground">{t("dashboard.student.favorites.perMonth")}</span>
                           </div>
                         </div>
 
@@ -631,10 +632,10 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                         <div className="mb-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground border-y border-border/60 py-2">
                           <span>{p.roomType}</span>
                           {p.areaSqm && <span>• {p.areaSqm} م²</span>}
-                          {p.bedrooms && <span>• {p.bedrooms} غرف</span>}
+                          {p.bedrooms && <span>• {p.bedrooms} {t("dashboard.student.favorites.rooms")}</span>}
                           {p.livabilityScore && (
                             <span className="text-primary font-bold">
-                              • جودة المعيشة {p.livabilityScore}%
+                              • {t("dashboard.student.favorites.livability")} {p.livabilityScore}%
                             </span>
                           )}
                         </div>
@@ -650,7 +651,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                           data-testid={`btn-view-fav-details-${fav.propertyId}`}
                         >
                           <Eye size={15} />
-                          عرض تفاصيل العقار
+                          {t("dashboard.student.favorites.viewDetails")}
                         </button>
                       )}
                     </div>
@@ -666,11 +667,11 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
       {activeTab === "profile" && (
         <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr]" data-testid="section-student-profile">
           <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-            <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
+              <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
               <div>
-                <h2 className="text-xl font-extrabold text-foreground">بيانات الطالب الجامعي</h2>
+                <h2 className="text-xl font-extrabold text-foreground">{t("dashboard.student.profile.title")}</h2>
                 <p className="text-xs text-muted-foreground">
-                  البيانات المطلوبة لتوثيق عقود السكن وضمان الحقوق القانونية
+                  {t("dashboard.student.profile.subtitle")}
                 </p>
               </div>
               <span className="rounded-full bg-primary/10 p-2.5 text-primary">
@@ -681,14 +682,14 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
             {isSaved && (
               <div className="mb-5 flex items-center gap-2 rounded-xl bg-emerald-500/15 p-3 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 size={16} />
-                تم حفظ التعديلات بنجاح ومزامنتها في جدول users!
+                {t("dashboard.student.profile.savedSuccess")}
               </div>
             )}
 
             <form onSubmit={handleProfileSave} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-foreground mb-1">
-                  الاسم الرباعي الكامل <span className="text-rose-500">*</span>
+                  {t("dashboard.student.profile.fullName")} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -702,7 +703,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
 
               <div>
                 <label className="block font-bold text-foreground mb-1">
-                  الرقم القومي (14 رقماً) <span className="text-rose-500">*</span>
+                  {t("dashboard.student.profile.nationalId")} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -716,14 +717,14 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                   data-testid="input-profile-national-id"
                 />
                 <span className="mt-1 block text-[10px] text-muted-foreground">
-                  مطابق لبطاقة الرقم القومي لتوثيق العقد الإلكتروني وحفظ حقوقك
+                  {t("dashboard.student.profile.nationalIdNote")}
                 </span>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="block font-bold text-foreground mb-1">
-                    رقم التليفون / واتساب <span className="text-rose-500">*</span>
+                    {t("dashboard.student.profile.phone")} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -738,7 +739,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
 
                 <div>
                   <label className="block font-bold text-foreground mb-1">
-                    الجامعة المقيد بها <span className="text-rose-500">*</span>
+                    {t("dashboard.student.profile.university")} <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={university}
@@ -755,18 +756,18 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">الكلية / التخصص</label>
+                  <label className="block font-bold text-foreground mb-1">{t("dashboard.student.profile.faculty")}</label>
                   <input
                     type="text"
                     value={faculty}
                     onChange={(e) => setFaculty(e.target.value)}
-                    placeholder="مثال: كلية الطب البشري"
+                    placeholder={t("dashboard.student.profile.facultyPlaceholder")}
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm text-foreground outline-none focus:border-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-foreground mb-1">الفرقة الدراسية</label>
+                  <label className="block font-bold text-foreground mb-1">{t("dashboard.student.profile.academicYear")}</label>
                   <select
                     value={academicYear}
                     onChange={(e) => setAcademicYear(e.target.value)}
@@ -784,7 +785,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
               </div>
 
               <div>
-                <label className="block font-bold text-foreground mb-1">البريد الإلكتروني</label>
+                <label className="block font-bold text-foreground mb-1">{t("dashboard.student.profile.email")}</label>
                 <input
                   type="email"
                   disabled
@@ -792,7 +793,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                   className="w-full rounded-xl border border-border bg-muted/60 px-3.5 py-3 text-sm text-muted-foreground cursor-not-allowed"
                 />
                 <span className="mt-1 block text-[10px] text-muted-foreground">
-                  البريد الإلكتروني المعتمد لتسجيل الدخول وإشعارات الحجز
+                  {t("dashboard.student.profile.emailNote")}
                 </span>
               </div>
 
@@ -801,7 +802,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                 className="mt-3 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow transition-transform hover:-translate-y-0.5"
                 data-testid="btn-save-profile"
               >
-                حفظ ومزامنة بيانات الطالب
+                {t("dashboard.student.profile.saveBtn")}
               </button>
             </form>
           </div>
@@ -849,7 +850,7 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-extrabold text-foreground">حالة الحساب</h3>
+                          <h3 className="text-base font-extrabold text-foreground">{t("dashboard.student.profile.status")}</h3>
                           <span className={`rounded-full px-2.5 py-0.5 text-xs font-black ${statusBadge.color}`} data-testid="student-verification-status">
                             {statusBadge.text}
                           </span>
@@ -861,12 +862,12 @@ export function StudentDashboard({ openToast, onExploreProperties, onViewPropert
                     </div>
 
                     <p className="text-xs text-muted-foreground leading-6">
-                      توثيق حسابك الجامعي يمنحك الأولوية في حجز الشقق المميزة، والاستفادة من ضمان عقود مكاني الموثقة بدون أي عمولة سماسرة.
+                      {t("dashboard.student.profile.about")}
                     </p>
 
                     <div className="mt-5 space-y-2 border-t border-border pt-4 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">الرقم القومي (١٤ رقماً):</span>
+                        <span className="text-muted-foreground">{t("dashboard.student.profile.nationalIdLabel")}</span>
                         <span className={`font-bold flex items-center gap-1 ${hasNationalId ? "text-emerald-600" : "text-amber-600"}`}>
                           {hasNationalId ? <CheckCircle2 size={13} /> : <Clock size={13} />}
                           {hasNationalId ? "مكتمل" : "مطلوب الإدخال"}

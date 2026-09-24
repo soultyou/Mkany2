@@ -1,9 +1,5 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
-import path from "node:path";
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
-import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -11,25 +7,14 @@ import { clerkWebhooksRouter } from "./routes/webhooks";
 
 const app: Express = express();
 
-app.use(
-  pinoHttp({
-    logger,
-    serializers: {
-      req(req) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0],
-        };
-      },
-      res(res) {
-        return {
-          statusCode: res.statusCode,
-        };
-      },
-    },
-  }),
-);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[HTTP] ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
 
 // Build environment-driven CORS origin allowlist
 const getAllowedOrigins = (): Set<string> => {
@@ -96,23 +81,6 @@ app.use(
   }),
 );
 
-// Serve static frontend build files
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const distPath = path.resolve(__dirname, "../../..", "dist");
-console.log("RUNTIME distPath:", distPath);
-console.log("distPath exists:", fs.existsSync(distPath));
-
-app.use((req, res, next) => {
-  if (req.url.startsWith("/assets/")) {
-    const filePath = path.join(distPath, req.url);
-    console.log("STATIC DEBUG:", req.url, "->", filePath, "Exists:", fs.existsSync(filePath));
-  }
-  next();
-});
-
-app.use(express.static(distPath));
-
 // Webhooks MUST be mounted before express.json() to preserve raw body
 app.use("/api/webhooks", clerkWebhooksRouter);
 
@@ -129,15 +97,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   const publishableKey = process.env.CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   const secretKey = process.env.CLERK_SECRET_KEY;
 
-  if (secretKey && publishableKey) {
+  if (secretKey) {
     clerkMiddleware({
-      publishableKey,
-      secretKey
+      ...(publishableKey ? { publishableKey } : {}),
+      secretKey,
     })(req, res, next);
     return;
   } else {
     if (process.env.NODE_ENV === "production") {
-      logger.error("CRITICAL: Missing required Clerk configuration keys in production mode! Failing closed.");
+      logger.error("CRITICAL: Missing required Clerk secret key in production mode! Failing closed.");
       res.status(500).json({
         error: "Server Configuration Error",
         message: "Clerk authentication service is misconfigured in production mode.",
@@ -152,21 +120,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use("/api", router);
 
-// SPA fallback for non-API, non-asset routes
-app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.path.startsWith("/api") || req.path.startsWith("/assets")) {
-    return next();
-  }
-  res.sendFile(path.join(distPath, "index.html"));
-});
-
-// 404 handler for missing assets or unhandled non-API routes
+// 404 handler for unhandled routes
 app.use((req: Request, res: Response) => {
-  if (req.path.startsWith("/assets")) {
-    res.status(404).send("Not Found");
-    return;
-  }
-  res.status(404).sendFile(path.join(distPath, "index.html"));
+  res.status(404).json({ error: "Not Found" });
 });
 
 export default app;

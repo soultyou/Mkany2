@@ -104,6 +104,10 @@ profileRouter.post("/onboarding", async (req, res) => {
       return;
     }
     try {
+      if (!dbUser.clerkUserId) {
+        res.status(403).json({ error: "Forbidden", message: "Missing Clerk User ID" });
+        return;
+      }
       const clerkUser = await clerkClient.users.getUser(dbUser.clerkUserId);
       const clerkRole = (clerkUser?.unsafeMetadata?.role as string) || (clerkUser?.publicMetadata?.role as string);
       if (clerkRole !== "owner") {

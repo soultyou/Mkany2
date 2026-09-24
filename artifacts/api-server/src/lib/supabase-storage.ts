@@ -148,27 +148,6 @@ export async function ensurePrivateStorageBucket(): Promise<void> {
       }
     }
 
-    // Ensure storage RLS policies exist for private bucket
-    await db.execute(sql`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Allow insert mkany-private-files') THEN
-          CREATE POLICY "Allow insert mkany-private-files" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'mkany-private-files');
-        END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Allow select mkany-private-files') THEN
-          CREATE POLICY "Allow select mkany-private-files" ON storage.objects FOR SELECT USING (bucket_id = 'mkany-private-files');
-        END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Allow update mkany-private-files') THEN
-          CREATE POLICY "Allow update mkany-private-files" ON storage.objects FOR UPDATE USING (bucket_id = 'mkany-private-files');
-        END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Allow delete mkany-private-files') THEN
-          CREATE POLICY "Allow delete mkany-private-files" ON storage.objects FOR DELETE USING (bucket_id = 'mkany-private-files');
-        END IF;
-      END $$;
-    `).catch((policyErr: any) => {
-      console.warn("[Supabase Storage] Private bucket RLS policy verification warning:", policyErr?.message);
-    });
-
     privateBucketEnsured = true;
   } catch (err) {
     console.warn("[Supabase Storage] Private bucket initialization warning:", err);
