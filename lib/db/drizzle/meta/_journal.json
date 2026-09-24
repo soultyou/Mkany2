@@ -64,13 +64,6 @@
       "when": 1789168000000,
       "tag": "0008_add_model_3d_url",
       "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1789200000000,
-      "tag": "0009_enable_rls_security",
-      "breakpoints": true
     }
   ]
 }

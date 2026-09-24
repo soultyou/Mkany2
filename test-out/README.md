@@ -1,1 +1,0 @@
-This folder contains the built output assets for the worker "mkany" generated at 2026-09-23T22:04:33.916Z.

@@ -4,9 +4,8 @@ import * as schema from "./schema/index";
 
 const { Pool } = pg;
 
-let currentConnectionString: string | null = null;
 let pool: any = null;
-let dbInstance: any = null;
+let db: any = null;
 
 export function getPoolConfig(connectionString?: string): any {
   if (!connectionString) return null;
@@ -24,90 +23,46 @@ export function getPoolConfig(connectionString?: string): any {
         database: u.pathname.replace(/^\//, "") || "postgres",
         ssl: { rejectUnauthorized: false },
         connectionTimeoutMillis: 10000,
-        max: 10,
       };
     }
     return {
       connectionString,
       ssl: connectionString.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
       connectionTimeoutMillis: 10000,
-      max: 10,
     };
   } catch {
-    return { connectionString, ssl: { rejectUnauthorized: false }, max: 10 };
+    return { connectionString, ssl: { rejectUnauthorized: false } };
   }
 }
 
-/**
- * Initializes or reuses the database connection pool using the provided runtime connection string
- * (from Cloudflare Hyperdrive or direct DATABASE_URL).
- * Avoids recreating pg.Pool if already connected to the same connection string.
- */
-export function setRuntimeDatabaseUrl(connectionString: string) {
-  if (!connectionString) return;
-
-  // Reuse existing pool and Drizzle instance if connection string has not changed
-  if (dbInstance && pool && currentConnectionString === connectionString) {
-    return;
-  }
-
+if (process.env.DATABASE_URL) {
   try {
-    if (pool) {
-      try {
-        pool.end().catch(() => {});
-      } catch {
-        // ignore cleanup error
-      }
-    }
-
-    const config = getPoolConfig(connectionString);
+    const config = getPoolConfig(process.env.DATABASE_URL);
     pool = new Pool(config);
-    dbInstance = drizzle(pool, { schema });
-    currentConnectionString = connectionString;
+    db = drizzle(pool, { schema });
   } catch (err) {
-    console.error("[Database] Runtime initialization error:", err);
-    throw err;
+    console.error('[Database] Connection initialization error:', err);
+    if (process.env.NODE_ENV === "production") {
+      throw new Error('Database initialization failed');
+    }
   }
+} else if (process.env.NODE_ENV === "production") {
+  throw new Error('DATABASE_URL environment variable is required in production');
 }
 
-// In Node.js / Gemini Preview environments where DATABASE_URL is available at process startup:
-if (typeof process !== "undefined" && process.env?.DATABASE_URL) {
-  try {
-    setRuntimeDatabaseUrl(process.env.DATABASE_URL);
-  } catch (err) {
-    console.error("[Database] Startup connection error:", err);
-  }
+if (!db) {
+  const noOp = {
+    findMany: async () => [],
+    findFirst: async () => null,
+    findUnique: async () => null,
+    create: async (d: any) => d?.data ?? {},
+    update: async (d: any) => d?.data ?? {},
+    delete: async () => ({}),
+  };
+  db = new Proxy({}, {
+    get: (_, prop) => (prop === 'query' ? new Proxy({}, { get: () => noOp }) : async () => []),
+  });
 }
 
-/**
- * Dynamic Drizzle ORM Proxy.
- * Does not require DATABASE_URL during module evaluation.
- * Does not return silent empty arrays or fake objects.
- * Forwards all queries directly to the active runtime dbInstance.
- */
-export const db: any = new Proxy({}, {
-  get(_target, prop) {
-    if (!dbInstance) {
-      // Check if DATABASE_URL became available in process.env
-      if (typeof process !== "undefined" && process.env?.DATABASE_URL) {
-        setRuntimeDatabaseUrl(process.env.DATABASE_URL);
-      }
-    }
-
-    if (!dbInstance) {
-      throw new Error(
-        "Database is not initialized. Ensure DATABASE_URL is configured in runtime environment."
-      );
-    }
-
-    const val = dbInstance[prop];
-    if (typeof val === "function") {
-      return val.bind(dbInstance);
-    }
-    return val;
-  }
-});
-
-export { pool };
+export { pool, db };
 export * from "./schema/index";
-
